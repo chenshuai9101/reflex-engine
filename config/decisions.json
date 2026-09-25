@@ -1,0 +1,46 @@
+{
+  "email_triage": {
+    "options": ["archive", "reply_now", "delegate", "mark_todo"],
+    "criteria": {
+      "archive": "newsletters, digests, notifications, marketing, unsubscribe — no action needed",
+      "reply_now": "urgent, requires my response or decision now, refunds, deadlines, approvals",
+      "delegate": "forward to a teammate or team, fyi, in the loop, not mine to handle",
+      "mark_todo": "an action item for me to do later, follow up, please remember"
+    },
+    "risk_tier": "low"
+  },
+  "job_posting_relevance": {
+    "options": ["relevant", "irrelevant", "spam"],
+    "criteria": {
+      "relevant": "a real job posting that fits my skills and is worth tailoring an application for",
+      "irrelevant": "a real job but not a fit for my skills, seniority, or location",
+      "spam": "recruiter mass mail, scam, or not a genuine job posting"
+    },
+    "risk_tier": "low"
+  },
+  "code_review_severity": {
+    "options": ["blocking", "suggestion", "nit"],
+    "criteria": {
+      "blocking": "a bug, security issue, or correctness problem that must be fixed before merge",
+      "suggestion": "an improvement or style issue worth considering, not required",
+      "nit": "a trivial cosmetic, naming, or formatting nitpick"
+    },
+    "risk_tier": "med"
+  },
+  "pharma_inquiry_triage": {
+    "options": ["medical_info", "adverse_event", "sales_lead", "customer_service"],
+    "criteria": {
+      "medical_info": "询问药品用法、剂量、相互作用、疗效等医学问题，需医学部答复",
+      "adverse_event": "报告药品不良反应、副作用或安全隐患，需升级药物警戒",
+      "sales_lead": "潜在客户或医生咨询价格、采购、商务条款等商业机会",
+      "customer_service": "物流、配送、发票、账户等一般客服问题"
+    },
+    "risk_tier": "med"
+  },
+  "snake_move": {
+    "options": ["UP", "DOWN", "LEFT", "RIGHT"],
+    "risk_tier": "low",
+    "tau_auto": 0.4,
+    "tau_review": 0.3
+  }
+}

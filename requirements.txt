@@ -1,0 +1,7 @@
+# 核心（骨架可跑的最小依赖）
+numpy
+
+# 可选（细节打磨时再加）
+# scikit-learn     # isotonic regression / 分类器训练
+# mlx, laya-mlx    # 本地决策模型推理（Apple Silicon）
+# google-api-python-client google-auth-oauthlib   # Gmail 捕获源
