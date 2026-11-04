@@ -15,3 +15,6 @@ models/
 # 环境与系统
 .env
 .DS_Store
+
+# 可再生大数据（scripts/prep_email_triage.py 从公开 HF 数据集重新生成）
+examples/email_triage_train.jsonl

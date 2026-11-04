@@ -40,13 +40,15 @@ class DecisionStore:
             c.execute("CREATE INDEX IF NOT EXISTS idx_type ON decisions(decision_type)")
             c.execute("CREATE INDEX IF NOT EXISTS idx_conf ON decisions(confidence)")
 
-    def append(self, d: Decision) -> None:
+    def append(self, d: Decision) -> bool:
+        """追加一条决策；返回是否真的写入了（重复 id 会被 IGNORE，返回 False）。"""
         with self._conn() as c:
-            c.execute(
+            cur = c.execute(
                 "INSERT OR IGNORE INTO decisions VALUES (?,?,?,?,?,?,?,?,?)",
                 (d.id, d.ts, d.decision_type, json.dumps(d.input_fp),
                  d.action, d.source, d.confidence, d.outcome, d.corrected_to),
             )
+            return cur.rowcount > 0
 
     def mark_outcome(self, decision_id: str, outcome: str, corrected_to: str | None = None) -> None:
         """角色B：回填对错（被动 undo / 批量 review 都走这里）。"""

@@ -42,5 +42,16 @@
     "risk_tier": "low",
     "tau_auto": 0.4,
     "tau_review": 0.3
+  },
+  "tumor_type": {
+    "options": ["nasopharyngeal", "nsclc", "biliary_tract", "ovarian", "head_neck_scc"],
+    "criteria": {
+      "nasopharyngeal": "鼻咽癌 NPC，鼻咽部/咽隐窝",
+      "nsclc": "非小细胞肺癌 NSCLC，肺部",
+      "biliary_tract": "胆管癌 BTC，胆管/胆道",
+      "ovarian": "卵巢癌，卵巢",
+      "head_neck_scc": "头颈部鳞癌（口腔、喉、下咽、口咽），不是鼻咽癌"
+    },
+    "risk_tier": "low"
   }
 }

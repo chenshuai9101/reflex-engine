@@ -20,10 +20,10 @@ class Capture(ABC):
         ...
 
     def ingest(self, store) -> int:
-        """poll -> 写日志，返回新增条数。"""
+        """poll -> 写日志，返回"实际新增"条数（幂等：重复 id 不重复计）。"""
         ds = self.poll()
         n = 0
         for d in ds:
-            store.append(d)
-            n += 1
+            if store.append(d):
+                n += 1
         return n

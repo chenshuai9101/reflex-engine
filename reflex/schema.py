@@ -67,24 +67,55 @@ class Decision:
     id: str = field(default_factory=lambda: uuid.uuid4().hex)
 
 
+_embedder = None  # 惰性加载的句子嵌入器；False 表示不可用
+
+
+def _get_embedder():
+    """惰性加载 sentence-transformers 嵌入器（真实语义嵌入，确定性）。
+
+    失败（无 sentence-transformers / 模型未下载）时返回 None，指纹回退到哈希词袋。
+    """
+    global _embedder
+    if _embedder is None:
+        try:
+            from sentence_transformers import SentenceTransformer
+            import os
+            model_name = os.environ.get("REFLEX_EMBED_MODEL", "all-MiniLM-L6-v2")
+            _embedder = SentenceTransformer(model_name)
+        except Exception:
+            _embedder = False
+    return _embedder if _embedder else None
+
+
 def fingerprint(text: str, dim: int = 128, keep_tokens: int = 50, keep_text: bool = False) -> dict:
-    """把原文压成指纹：哈希 + 词袋嵌入 + 少量关键词。
+    """把原文压成指纹：哈希 + 语义嵌入 + 少量关键词。
 
     设计取舍：默认不存原文（隐私），但保留 top-k 关键词，让规则模型/可解释性可用。
     若场景敏感，把 keep_tokens 设 0 即可只留哈希+嵌入。
 
-    keep_text=True 会在指纹里附带原文 text 字段，供 LayaModel 在推理期读到完整
-    上下文。注意：这只用于推理（shadow/suggest/auto），持久化日志请保持 False，
-    否则原文会写进 decisions.db 破坏"不存原文"的隐私默认。
+    emb 优先用真实句子嵌入（sentence-transformers，确定性、含语义）；不可用时
+    回退到哈希词袋。注意：Python 内建 hash() 对字符串是进程级盐化的（跨进程
+    不确定），所以词袋只作降级兜底，不作为持久化语义。
 
-    TODO(细节): 词袋只是骨架占位，换成真实嵌入（sentence-transformers / MLX）
-    后，重训效果会明显更好。
+    keep_text=True 会在指纹里附带原文 text 字段，供模型在推理期读到完整上下文。
+    注意：这只用于推理（shadow/suggest/auto），持久化日志请保持 False，否则原文
+    会写进 decisions.db 破坏"不存原文"的隐私默认。
     """
     h = hashlib.sha256(text.encode("utf-8")).hexdigest()[:16]
     toks = text.lower().split()
-    emb = [0.0] * dim
-    for t in toks:
-        emb[hash(t) % dim] += 1.0
+
+    emb = None
+    model = _get_embedder()
+    if model is not None:
+        try:
+            emb = model.encode(text, normalize_embeddings=True).astype(float).tolist()
+        except Exception:
+            emb = None
+    if emb is None:
+        emb = [0.0] * dim
+        for t in toks:
+            emb[hash(t) % dim] += 1.0
+
     # top-k 关键词（按出现频次）
     from collections import Counter
     tokens = [w for w, _ in Counter(toks).most_common(keep_tokens)]

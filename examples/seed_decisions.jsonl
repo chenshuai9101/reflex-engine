@@ -1,0 +1,22 @@
+# Phase 1 演示语料：真实决策形态的样例（(输入 → 你的动作)，source=human 是金标签）。
+# 这只是"证明管线能跑通"的种子数据，换掉它 = 接你自己的 Gmail/工单导出。
+# email_triage: options = archive | reply_now | delegate | mark_todo
+{"text": "Your weekly newsletter: top product updates and tips", "action": "archive", "decision_type": "email_triage"}
+{"text": "URGENT: please review and approve the Q3 budget by Friday", "action": "reply_now", "decision_type": "email_triage"}
+{"text": "FYI, looping in the team on the launch plan", "action": "delegate", "decision_type": "email_triage"}
+{"text": "Invoice #4411 was billed twice, please refund", "action": "reply_now", "decision_type": "email_triage"}
+{"text": "Digest: what happened this week in the industry", "action": "archive", "decision_type": "email_triage"}
+{"text": "Action needed: please follow up on the contract renewal", "action": "mark_todo", "decision_type": "email_triage"}
+{"text": "Forwarding the vendor proposal for your input", "action": "delegate", "decision_type": "email_triage"}
+{"text": "Reminder: team sync notes and next steps", "action": "archive", "decision_type": "email_triage"}
+{"text": "Meeting request: can we schedule a call about the pricing?", "action": "reply_now", "decision_type": "email_triage"}
+{"text": "Notification: your account statement is ready", "action": "archive", "decision_type": "email_triage"}
+# pharma_inquiry_triage: options = medical_info | adverse_event | sales_lead | customer_service
+{"text": "请问朗斯弗的推荐剂量是多少？老年患者需要减量吗？", "action": "medical_info", "decision_type": "pharma_inquiry_triage"}
+{"text": "患者服用爱斯万后出现严重皮疹和呼吸困难，是否需要立即停药上报？", "action": "adverse_event", "decision_type": "pharma_inquiry_triage"}
+{"text": "我是XX医院药剂科，想了解TAS-102的进院采购价格和付款条款。", "action": "sales_lead", "decision_type": "pharma_inquiry_triage"}
+{"text": "上周订的货还没到，发票也开错了，麻烦查一下。", "action": "customer_service", "decision_type": "pharma_inquiry_triage"}
+{"text": "有患者反馈恶心、食欲不振，需要停药吗？", "action": "adverse_event", "decision_type": "pharma_inquiry_triage"}
+{"text": "请问你们在福建有没有经销商？我想代理。", "action": "sales_lead", "decision_type": "pharma_inquiry_triage"}
+{"text": "想了解爱斯万针对晚期胃癌的最新临床数据。", "action": "medical_info", "decision_type": "pharma_inquiry_triage"}
+{"text": "这个药医保能报销吗？报销比例是多少？", "action": "customer_service", "decision_type": "pharma_inquiry_triage"}
