@@ -32,18 +32,24 @@ reflex/
   schema.py             决策类型 + 决策日志 + 输入指纹（隐私：不存原文）
   store.py              决策日志（SQLite，append-only，零依赖）
   gate.py               边界闸门（置信度三段门控）
-  calibrate.py          统计校准（ECE + 温度缩放）
+  calibrate.py          统计校准（ECE + 温度缩放 + 保序回归，已真实现）
+  conformal.py          共形预测闸门（split conformal，auto 档有限样本覆盖保证）
   correct.py            修正回流（被动 undo + 批量 review）
   shadow.py             影子/建议/自动 三模式 Runner
   capture/base.py       捕获器接口
-  capture/email_gmail.py 邮件源（第一个试点，TODO 接 Gmail API）
+  capture/email_gmail.py 邮件源（IMAP + 应用专用密码，待换 Gmail API）
+  capture/file_source.py JSONL 文件源（零依赖，Phase 1 立即可跑）
   model/base.py         反射模型接口
   model/rule_model.py   关键词规则模型（冷启动基线 + 兜底）
   model/laya_model.py   Laya 决策模型适配器（本地 MLX，已接入，默认模型）
 scripts/
   collect.py            Phase 1 纯被动收集
+  prep_email_triage.py  下载映射 email-triage-v1 → 4 桶（冷启动数据）
+  train_email_triage.py 端到端：微调 → 校准 → 共形 → 报告三数字
+  finetune.py           Phase 2 微调分类器（BERT/ModernBERT）
   train.py              Phase 2 蒸馏+训练+校准（占位）
   shadow.py             Phase 3 影子模式（可跑通）
+  peek.py               查看决策日志
 ```
 
 ## 快速上手（骨架现在能跑什么）
@@ -70,6 +76,31 @@ python3 scripts/collect.py     # Gmail 未接入前，会提示"尚未接入"并
 ```
 
 详见 `demos/README.md`。
+
+## 端到端验证（email triage，已跑通）
+
+这条链已在真实数据上跑通，产出三个数字：
+
+| 指标 | 值 |
+|---|---|
+| 准确率 | 0.736（ModernBERT-base，4 桶分诊） |
+| ECE 校准前 → 后 | 0.086 → 0.053（温度缩放 T=1.386） |
+| 安全 auto 覆盖率 @1%/5% 错误 | 12.4% / 35.3% |
+
+共形闸门：经验覆盖率 0.922，单例率 47.7%，单例错误 8.4%。
+
+```bash
+# 1) 生成冷启动数据（从 tunedtensor/email-triage-v1，走 hf-mirror）
+HF_ENDPOINT=https://hf-mirror.com python3 scripts/prep_email_triage.py
+
+# 2) 端到端：微调 ModernBERT → 温度缩放 + 保序回归 → 共形闸门 → 报告
+HF_ENDPOINT=https://hf-mirror.com python3 scripts/train_email_triage.py \
+    --base answerdotai/ModernBERT-base --epochs 4 --dropout 0.3
+# 结果写 data/email_triage_report.md，模型存 models/email_triage_classifier/
+```
+
+**关键结论**：框架（捕获→蒸馏→校准→闸门）是对的；准确率天花板取决于你的数据质量，
+不在框架。Laya 零样本只够预筛（官方 base 零样本 ~0.34），要 auto 执行得走微调分类器 + 校准。
 
 ## 落地路径（Phase）
 
